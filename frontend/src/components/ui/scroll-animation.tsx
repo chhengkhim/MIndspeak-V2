@@ -25,34 +25,32 @@ export function ScrollAnimation({
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once, amount: threshold })
 
+  // Simplified initial and final positions
   const getInitialPosition = () => {
     switch (direction) {
       case "up":
-        return { opacity: 0, y: 50 }
+        return { opacity: 0, y: 30 }
       case "down":
-        return { opacity: 0, y: -50 }
+        return { opacity: 0, y: -30 }
       case "left":
-        return { opacity: 0, x: 50 }
+        return { opacity: 0, x: 30 }
       case "right":
-        return { opacity: 0, x: -50 }
+        return { opacity: 0, x: -30 }
       default:
-        return { opacity: 0, y: 50 }
+        return { opacity: 0, y: 30 }
     }
-  }
-
-  const getFinalPosition = () => {
-    return { opacity: 1, x: 0, y: 0 }
   }
 
   return (
     <div ref={ref} className={className}>
       <motion.div
         initial={getInitialPosition()}
-        animate={isInView ? getFinalPosition() : getInitialPosition()}
+        animate={isInView ? { opacity: 1, x: 0, y: 0 } : getInitialPosition()}
         transition={{
           duration,
           delay,
-          ease: [0.22, 1, 0.36, 1],
+          // Simplified easing function
+          ease: "easeOut",
         }}
       >
         {children}
@@ -70,6 +68,19 @@ export function ParallaxScroll({
   speed?: number
   className?: string
 }) {
+  // Only enable parallax on desktop
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -77,11 +88,12 @@ export function ParallaxScroll({
   })
 
   const y = useTransform(scrollYProgress, [0, 1], [0, speed * 100])
-  const springY = useSpring(y, { stiffness: 100, damping: 30 })
+  // Reduce spring stiffness for better performance
+  const springY = useSpring(y, { stiffness: 50, damping: 20 })
 
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
-      <motion.div style={{ y: springY }}>{children}</motion.div>
+      {isMobile ? <div>{children}</div> : <motion.div style={{ y: springY }}>{children}</motion.div>}
     </div>
   )
 }
@@ -103,7 +115,7 @@ export function FadeInOnScroll({
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.8, delay }}
+        transition={{ duration: 0.6, delay }}
       >
         {children}
       </motion.div>
@@ -112,8 +124,23 @@ export function FadeInOnScroll({
 }
 
 export function ScrollProgressBar() {
+  // Only show on desktop
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsVisible(window.innerWidth >= 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
   const { scrollYProgress } = useScroll()
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 })
+  const scaleX = useSpring(scrollYProgress, { stiffness: 50, damping: 20 })
+
+  if (!isVisible) return null
 
   return <motion.div className="fixed top-0 left-0 right-0 h-1 bg-blue-500 z-50 origin-left" style={{ scaleX }} />
 }

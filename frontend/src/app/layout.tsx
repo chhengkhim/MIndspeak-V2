@@ -10,9 +10,7 @@ import { ScrollProgressBar, ScrollToTopButton } from "@/components/ui/scroll-ani
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "MindSpeak | A Safe Haven for Mental Health",
-  description: "A safe space for expressing mental struggles and sharing experiences",
-    generator: 'v0.dev'
+  title: "❤️MindSpeak",
 }
 
 export default function RootLayout({

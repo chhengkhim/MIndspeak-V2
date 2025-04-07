@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { cn } from "@/lib/utils"
 import { Menu, X, Heart } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
 
@@ -34,124 +34,181 @@ export default function Navbar() {
       }
     }
 
+    // Prevent scrolling when sidebar is open
+    if (isSidebarOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+
     window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      document.body.style.overflow = "unset"
+    }
+  }, [isSidebarOpen])
 
   return (
-    <motion.header
-      className={cn(
-        "sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-background/60",
-        scrolled ? "bg-background/95 shadow-sm" : "bg-background/50",
-      )}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
-      <div className="container flex h-16 items-center justify-between">
-        <motion.div
-          className="flex items-center gap-2"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        >
-          <Link href="/" className="flex items-center gap-2">
-            <motion.div whileHover={{ rotate: 20 }} transition={{ type: "spring", stiffness: 500 }}>
-              <Heart className="h-6 text-red-600 w-6 text-primary" />
-            </motion.div>
-            <span className="text-2xl font-bold text-blue-500">MindSpeak</span>
-          </Link>
-        </motion.div>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          {routes.map((route) => (
-            <motion.div key={route.href} whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 500 }}>
-              <Link
-                href={route.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary relative",
-                  pathname === route.href ? "text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {route.label}
-                {pathname === route.href && (
-                  <motion.div
-                    className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary rounded-full"
-                    layoutId="navbar-indicator"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </Link>
-            </motion.div>
-          ))}
-        </nav>
-
-        <div className="hidden md:flex items-center gap-4">
-          <ModeToggle />
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-lg hover:shadow-blue-500" asChild variant="outline" size="sm">
-              <Link href="/join">Sign In</Link>
-            </Button>
+    <>
+      <motion.header
+        className={cn(
+          "sticky top-0 z-40 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-background/60",
+          scrolled ? "bg-background/95 shadow-sm" : "bg-background/50",
+        )}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
+        <div className="container flex h-16 items-center justify-between">
+          <motion.div
+            className="flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <Link href="/" className="flex items-center gap-2">
+              <motion.div whileHover={{ rotate: 20 }} transition={{ type: "spring", stiffness: 500 }}>
+                <Heart className="h-6 text-red-600 w-6 text-primary" />
+              </motion.div>
+              <span className="text-2xl font-bold text-blue-500">MindSpeak</span>
+            </Link>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button asChild size="sm">
-              <Link className="bg-teal-500 text-white hover:bg-white hover:text-teal-500 shadow-lg hover:shadow-teal-500" href="/join">Join</Link>
-            </Button>
-          </motion.div>
-        </div>
 
-        {/* Mobile Navigation */}
-        <div className="flex md:hidden items-center gap-4">
-          <ModeToggle />
-          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle Menu">
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <motion.div
-          className="md:hidden border-b"
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="container py-4 grid gap-4">
-            <nav className="grid gap-2">
-              {routes.map((route) => (
-                <motion.div
-                  key={route.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2 }}
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6">
+            {routes.map((route) => (
+              <motion.div key={route.href} whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 500 }}>
+                <Link
+                  href={route.href}
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary relative",
+                    pathname === route.href ? "text-foreground" : "text-muted-foreground",
+                  )}
                 >
-                  <Link
-                    href={route.href}
-                    className={cn(
-                      "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary",
-                      pathname === route.href ? "text-foreground" : "text-muted-foreground",
-                    )}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {route.label}
-                  </Link>
-                </motion.div>
-              ))}
-            </nav>
-            <div className="grid grid-cols-2 gap-2 pt-2">
-              <Button className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-lg hover:shadow-blue-500" asChild variant="outline" size="sm">
-                <Link href="/login">Sign In</Link>
+                  {route.label}
+                  {pathname === route.href && (
+                    <motion.div
+                      className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary rounded-full"
+                      layoutId="navbar-indicator"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              </motion.div>
+            ))}
+          </nav>
+
+          <div className="hidden md:flex items-center gap-4">
+            <ModeToggle />
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-lg hover:shadow-blue-500"
+                asChild
+                variant="outline"
+                size="sm"
+              >
+                <Link href="/join">Sign In</Link>
               </Button>
-              <Button className="bg-teal-500 text-white hover:bg-white hover:text-teal-500 shadow-lg hover:shadow-teal-500" asChild size="sm">
-                <Link href="/join">Join</Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button asChild size="sm">
+                <Link
+                  className="bg-teal-500 text-white hover:bg-white hover:text-teal-500 shadow-lg hover:shadow-teal-500"
+                  href="/join"
+                >
+                  Join
+                </Link>
               </Button>
-            </div>
+            </motion.div>
           </div>
-        </motion.div>
-      )}
-    </motion.header>
+
+          {/* Mobile Navigation Toggle */}
+          <div className="flex md:hidden items-center gap-4">
+            <ModeToggle />
+            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} aria-label="Open Menu">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+            />
+
+            {/* Sidebar */}
+            <motion.div
+              className="fixed top-0 right-0 h-full w-[280px] bg-background border-l z-50 md:hidden overflow-y-auto"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center gap-2">
+                  <Heart className="h-5 w-5 text-red-600" />
+                  <span className="font-bold text-blue-500">MindSpeak</span>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} aria-label="Close Menu">
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              <div className="p-4">
+                <nav className="grid gap-4 mb-6">
+                  {routes.map((route, index) => (
+                    <motion.div
+                      key={route.href}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05, duration: 0.2 }}
+                    >
+                      <Link
+                        href={route.href}
+                        className={cn(
+                          "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary",
+                          pathname === route.href ? "text-foreground font-semibold" : "text-muted-foreground",
+                        )}
+                        onClick={() => setIsSidebarOpen(false)}
+                      >
+                        {route.label}
+                        {pathname === route.href && (
+                          <motion.div className="ml-2 h-1 w-1 rounded-full bg-primary" layoutId="sidebar-indicator" />
+                        )}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </nav>
+
+                <div className="grid gap-3 pt-4 border-t">
+                  <Button
+                    className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-md hover:shadow-blue-500/50 w-full"
+                    asChild
+                    variant="outline"
+                  >
+                    <Link href="/login">Sign In</Link>
+                  </Button>
+                  <Button
+                    className="bg-teal-500 text-white hover:bg-white hover:text-teal-500 shadow-md hover:shadow-teal-500/50 w-full"
+                    asChild
+                  >
+                    <Link href="/join">Join</Link>
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
 

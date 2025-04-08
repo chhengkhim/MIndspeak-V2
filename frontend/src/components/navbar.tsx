@@ -1,18 +1,20 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
-import { cn } from "@/lib/utils"
-import { Menu, X, Heart } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image";
+import logo from "@/assets/logo2.png";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
+import { cn } from "@/lib/utils";
+import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const pathname = usePathname()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   const routes = [
     { href: "/", label: "Home" },
@@ -23,37 +25,37 @@ export default function Navbar() {
     { href: "/share", label: "Share" },
     { href: "/resources", label: "Resources" },
     { href: "/telegram", label: "Telegram" },
-  ]
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
-        setScrolled(true)
+        setScrolled(true);
       } else {
-        setScrolled(false)
+        setScrolled(false);
       }
-    }
+    };
 
     // Prevent scrolling when sidebar is open
     if (isSidebarOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset"
+      document.body.style.overflow = "unset";
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-      document.body.style.overflow = "unset"
-    }
-  }, [isSidebarOpen])
+      window.removeEventListener("scroll", handleScroll);
+      document.body.style.overflow = "unset";
+    };
+  }, [isSidebarOpen]);
 
   return (
     <>
       <motion.header
         className={cn(
           "sticky top-0 z-40 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-background/60",
-          scrolled ? "bg-background/95 shadow-sm" : "bg-background/50",
+          scrolled ? "bg-background/95 shadow-sm" : "bg-background/50"
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -65,23 +67,32 @@ export default function Navbar() {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <Link href="/" className="flex items-center gap-2">
-              <motion.div whileHover={{ rotate: 20 }} transition={{ type: "spring", stiffness: 500 }}>
-                <Heart className="h-6 text-red-600 w-6 text-primary" />
-              </motion.div>
-              <span className="text-2xl font-bold text-blue-500">MindSpeak</span>
+            <Link href="/about" className="flex items-center gap-2">
+              <Image
+                src={logo}
+                alt="Logo"
+                width={200}
+                height={200}
+                className="rounded-full brightness-125"
+              />
             </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             {routes.map((route) => (
-              <motion.div key={route.href} whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 500 }}>
+              <motion.div
+                key={route.href}
+                whileHover={{ y: -2 }}
+                transition={{ type: "spring", stiffness: 500 }}
+              >
                 <Link
                   href={route.href}
                   className={cn(
                     "text-sm font-medium transition-colors hover:text-primary relative",
-                    pathname === route.href ? "text-foreground" : "text-muted-foreground",
+                    pathname === route.href
+                      ? "text-foreground"
+                      : "text-muted-foreground"
                   )}
                 >
                   {route.label}
@@ -89,7 +100,11 @@ export default function Navbar() {
                     <motion.div
                       className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary rounded-full"
                       layoutId="navbar-indicator"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 30,
+                      }}
                     />
                   )}
                 </Link>
@@ -124,7 +139,13 @@ export default function Navbar() {
           {/* Mobile Navigation Toggle */}
           <div className="flex md:hidden items-center gap-4">
             <ModeToggle />
-            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} aria-label="Open Menu">
+            <Button
+              className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-lg hover:shadow-blue-500"
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open Menu"
+            >
               <Menu className="h-6 w-6" />
             </Button>
           </div>
@@ -154,10 +175,22 @@ export default function Navbar() {
             >
               <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-red-600" />
-                  <span className="font-bold text-blue-500">MindSpeak</span>
+                  <Link href="/about" className="flex items-center gap-2">
+                    <Image
+                      src={logo}
+                      alt="Logo"
+                      width={200}
+                      height={200}
+                      className="rounded-full brightness-125"
+                    />
+                  </Link>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} aria-label="Close Menu">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSidebarOpen(false)}
+                  aria-label="Close Menu"
+                >
                   <X className="h-5 w-5" />
                 </Button>
               </div>
@@ -175,13 +208,18 @@ export default function Navbar() {
                         href={route.href}
                         className={cn(
                           "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary",
-                          pathname === route.href ? "text-foreground font-semibold" : "text-muted-foreground",
+                          pathname === route.href
+                            ? "text-foreground font-semibold"
+                            : "text-muted-foreground"
                         )}
                         onClick={() => setIsSidebarOpen(false)}
                       >
                         {route.label}
                         {pathname === route.href && (
-                          <motion.div className="ml-2 h-1 w-1 rounded-full bg-primary" layoutId="sidebar-indicator" />
+                          <motion.div
+                            className="ml-2 h-1 w-1 rounded-full bg-primary"
+                            layoutId="sidebar-indicator"
+                          />
                         )}
                       </Link>
                     </motion.div>
@@ -209,6 +247,5 @@ export default function Navbar() {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
-

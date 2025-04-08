@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils"
 import { ScrollAnimation } from "@/components/ui/scroll-animation"
 import { TypingAnimation } from "@/components/magicui/typing-animation"
 
-
 export default function StoriesPage() {
   // This would normally come from a database
   const [stories, setStories] = useState([
@@ -132,6 +131,30 @@ export default function StoriesPage() {
   // Scroll animation
   // Removed unused scaleX variable
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  }
+
+
+  const storyVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  }
+
   const handleLike = (id: number) => {
     setStories(
       stories.map((story) => {
@@ -178,7 +201,11 @@ export default function StoriesPage() {
     // Scroll to comments section after a short delay to allow for animation
     if (!stories.find((s) => s.id === id)?.showComments) {
       setTimeout(() => {
-        commentsRef.current?.scrollIntoView({ behavior: "smooth" })
+        commentsRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "nearest",
+        })
       }, 300)
     }
   }
@@ -279,17 +306,6 @@ export default function StoriesPage() {
     )
   })
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  }
-
-
   return (
     <div className="container mx-auto px-4 py-12">
       <motion.div
@@ -312,17 +328,41 @@ export default function StoriesPage() {
 
         <ScrollAnimation delay={0.2}>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-gradient-to-r from-primary/5 to-transparent p-4 rounded-lg">
-            <Tabs defaultValue="all" className="w-full md:w-auto">
-              <TabsList className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-                <TabsTrigger value="all">All Stories</TabsTrigger>
-                <TabsTrigger value="anxiety">Anxiety</TabsTrigger>
-                <TabsTrigger value="depression">Depression</TabsTrigger>
-                <TabsTrigger value="stress">Stress</TabsTrigger>
+            <Tabs
+              defaultValue="all"
+              className="w-full md:w-auto"
+              onValueChange={(value) => {
+                // Filter stories based on tab selection
+                setSearchQuery(value === "all" ? "" : value)
+              }}
+            >
+              <TabsList className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm relative">
+                <motion.div
+                  className="absolute inset-0 bg-primary/10 rounded-md z-0"
+                  layoutId="tabBackground"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+                <TabsTrigger value="all" className="relative z-10">
+                  All Stories
+                </TabsTrigger>
+                <TabsTrigger value="anxiety" className="relative z-10">
+                  Anxiety
+                </TabsTrigger>
+                <TabsTrigger value="depression" className="relative z-10">
+                  Depression
+                </TabsTrigger>
+                <TabsTrigger value="stress" className="relative z-10">
+                  Stress
+                </TabsTrigger>
               </TabsList>
             </Tabs>
 
             <div className="flex w-full md:w-auto gap-4">
-              <div className="relative w-full md:w-auto">
+              <motion.div
+                className="relative w-full md:w-auto"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search stories..."
@@ -330,9 +370,25 @@ export default function StoriesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              </div>
+              </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={{
+                  boxShadow: [
+                    "0px 0px 0px rgba(59, 130, 246, 0)",
+                    "0px 0px 15px rgba(59, 130, 246, 0.3)",
+                    "0px 0px 0px rgba(59, 130, 246, 0)",
+                  ],
+                }}
+                transition={{
+                  boxShadow: {
+                    repeat: Number.POSITIVE_INFINITY,
+                    duration: 2,
+                  },
+                }}
+              >
                 <Button
                   asChild
                   className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-primary/20 transition-all duration-300"
@@ -349,7 +405,10 @@ export default function StoriesPage() {
             filteredStories.map((story, index) => (
               <ScrollAnimation key={story.id} delay={0.1 * index} threshold={0.1}>
                 <motion.div
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                  variants={storyVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)" }}
                   className="transform transition-all duration-200"
                 >
                   <Card className="overflow-hidden hover:shadow-md hover:shadow-blue-500 transition-shadow border-primary/10 hover:border-primary/30">
@@ -360,7 +419,7 @@ export default function StoriesPage() {
                           <div className="flex items-center mt-2">
                             <motion.span
                               className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
-                              whileHover={{ scale: 1.1 }}
+                              whileHover={{ scale: 1.1, backgroundColor: "rgba(var(--primary), 0.2)" }}
                               transition={{ type: "spring", stiffness: 400, damping: 10 }}
                             >
                               {story.category}
@@ -433,27 +492,45 @@ export default function StoriesPage() {
                       </div>
 
                       {/* Comments section */}
-                      <AnimatePresence>
+                      <AnimatePresence mode="popLayout">
                         {story.showComments && (
                           <motion.div
                             className="w-full mt-4 pt-4 border-t space-y-4"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 30,
+                              duration: 0.3,
+                            }}
                             ref={commentsRef}
                           >
                             <h4 className="text-sm font-medium">Comments</h4>
 
-                            <AnimatePresence>
+                            <motion.div
+                              variants={{
+                                hidden: { opacity: 0 },
+                                show: {
+                                  opacity: 1,
+                                  transition: {
+                                    staggerChildren: 0.1,
+                                  },
+                                },
+                              }}
+                              initial="hidden"
+                              animate="show"
+                            >
                               {story.commentsList.length > 0 ? (
                                 story.commentsList.map((comment) => (
                                   <motion.div
                                     key={comment.id}
-                                    className="flex gap-2"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
+                                    className="flex gap-2 mb-3"
+                                    variants={{
+                                      hidden: { opacity: 0, y: 10 },
+                                      show: { opacity: 1, y: 0 },
+                                    }}
                                     transition={{ duration: 0.2 }}
                                   >
                                     <Avatar className="h-6 w-6">
@@ -536,7 +613,7 @@ export default function StoriesPage() {
                                   No comments yet. Be the first to comment!
                                 </motion.p>
                               )}
-                            </AnimatePresence>
+                            </motion.div>
 
                             {/* Add comment form */}
                             <motion.div
@@ -599,4 +676,3 @@ export default function StoriesPage() {
     </div>
   )
 }
-

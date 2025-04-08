@@ -1,6 +1,11 @@
+"use client";
+
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
+import Image from "next/image";
+import logo from "@/assets/logo2.png";
 
 export default function Footer() {
   return (
@@ -8,11 +13,14 @@ export default function Footer() {
       <div className="container py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-              <Heart className="h-6 text-red-600 w-6 text-primary" />
-              <span className="text-2xl font-bold text-blue-500">
-                MindSpeak
-              </span>
+            <Link href="/about" className="flex items-center gap-2">
+              <Image
+                src={logo}
+                alt="Logo"
+                width={200}
+                height={200}
+                className="rounded-full brightness-125"
+              />
             </Link>
             <p className="mt-2 text-sm text-muted-foreground max-w-md">
               A safe haven for expressing mental struggles and sharing

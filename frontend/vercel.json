@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "projects": {
-    "frontend": {
+  "builds": [
+    {
       "src": "frontend/package.json",
       "use": "@vercel/next"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/(.*)",

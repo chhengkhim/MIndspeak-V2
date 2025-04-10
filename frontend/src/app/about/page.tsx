@@ -24,6 +24,7 @@ import {
   Globe,
   Briefcase,
 } from "lucide-react"
+import HeroSlider from "@/app/about/hero-slide"
 
 // Interface for team member data
 interface TeamMember {
@@ -458,7 +459,8 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      {/* Hero Section */}
+      <HeroSlider/>
+      {/* Hero Section 
       <section className="relative py-32 z-10">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -520,7 +522,7 @@ export default function AboutPage() {
             </GlassReveal>
           </div>
         </div>
-      </section>
+      </section>*/}
 
       {/* Mission & Values Section */}
       <section className="relative py-20 z-10">
